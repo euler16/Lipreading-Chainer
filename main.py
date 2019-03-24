@@ -25,7 +25,7 @@ from cvtransforms import *
 SEED = 1
 np.random.seed(SEED)
 
-GPU = 0
+GPU = 1
 device = cuda.get_device(GPU)
 device.use()
 
@@ -68,7 +68,7 @@ def train_test(model, dset_loaders, epoch, phase, optimizer, args, logger, use_g
     model.to_gpu(device)
     # print('checking the model', chainer.backends.cuda.get_device_from_array(model.array))
     for batch_idx, sample in enumerate(dset_loaders[phase]):
-        inputs, targets = concat_examples(sample, device)
+        inputs, targets = concat_examples(sample, GPU)
         if phase == 'train':
             batch_img = RandomCrop(inputs, (88, 88))
             batch_img = ColorNormalize(batch_img)
