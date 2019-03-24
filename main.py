@@ -65,7 +65,7 @@ def train_test(model, dset_loaders, epoch, phase, optimizer, args, logger, use_g
         # logger.info('Current Learning rate: {}'.format(showLR(optimizer)))
 
     running_loss, running_all, accuracy = 0., 0., 0.
-    model.to_gpu()
+    model.to_gpu(device)
     # print('checking the model', chainer.backends.cuda.get_device_from_array(model.array))
     for batch_idx, sample in enumerate(dset_loaders[phase]):
         inputs, targets = concat_examples(sample)
@@ -81,11 +81,11 @@ def train_test(model, dset_loaders, epoch, phase, optimizer, args, logger, use_g
 
         batch_img = np.reshape(batch_img, (batch_img.shape[0], batch_img.shape[1], batch_img.shape[2], batch_img.shape[3], 1))
         inputs = Variable(batch_img, requires_grad=False)
-        inputs.to_gpu()
+        inputs.to_gpu(device)
         #inputs = inputs.float().permute(0, 4, 1, 2, 3)
         inputs = F.transpose(inputs, axes=(0,4,1,2,3))
         targets = Variable(targets)
-        targets.to_gpu()
+        targets.to_gpu(device)
         print('inputs', chainer.backends.cuda.get_device_from_array(inputs.array))
         print('target', chainer.backends.cuda.get_device_from_array(targets.array))
         if phase == 'train':
@@ -162,7 +162,7 @@ def test_adam(args, use_gpu):
     # reload model
     model.to_gpu()
     model = reload_model(model, logger, args.path)
-    model.to_gpu()
+    model.to_gpu(device)
     
     if args.mode == 'temporalConv' or args.mode == 'finetuneGRU':
         # optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.)
