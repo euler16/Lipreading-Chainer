@@ -194,7 +194,7 @@ def main():
     # Settings
     args = parse_args()
 
-    use_gpu = True
+    use_gpu = False
     test_adam(args, use_gpu)
 
 
