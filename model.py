@@ -17,8 +17,8 @@ class BasicBlock(chainer.Chain):
 
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(BasicBlock, self).__init__()
-        self.conv1 = conv3x3(inplanes, planes, stride)
-        self.conv1 = L.Convolution2D(in_planes, out_planes, ksize=3, stride=stride,pad=1,nobias=True,initialW=initializers.LeCunNormal)
+        #self.conv1 = conv3x3(inplanes, planes, stride)
+        self.conv1 = L.Convolution2D(inplanes, planes, ksize=3, stride=stride,pad=1,nobias=True,initialW=initializers.LeCunNormal)
         self.bn1 = L.BatchNormalization(planes)
         #self.relu = nn.ReLU(inplace=True)
         # self.conv2 = conv3x3(planes, planes)
