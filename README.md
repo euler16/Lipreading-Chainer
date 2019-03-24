@@ -1,5 +1,5 @@
 # Lipreading in Chainer
-This is the chainer code for the paper *Combining Residual Networks with LSTMs for Lipeading*
+This is the chainer code for the paper *Combining Residual Networks with LSTMs for Lipeading*. You can find the paper [here](https://arxiv.org/pdf/1703.04105.pdf)
 ## How to Run
 
 ## TODOs
