@@ -16,8 +16,11 @@ class AdjustLR(object):
 
     def step(self, epoch):
         if epoch >= self.sleep_epochs:
+            pass
+            '''
+            # TODO
             for idx, param_group in enumerate(self.optimizer.param_groups):
                 new_lr = self.init_lr[idx] * math.pow(0.5, (epoch-self.sleep_epochs+1)/float(self.half))
                 param_group['lr'] = new_lr
             if self.verbose:
-                print('>>> reduce learning rate <<<')
+                print('>>> reduce learning rate <<<')'''
