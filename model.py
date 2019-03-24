@@ -28,7 +28,9 @@ class BasicBlock(chainer.Chain):
         self.stride = stride
 
     def forward(self, x):
+        print(chainer.backends.cuda.get_device_from_array(x.array))
         residual = x
+
         out = self.conv1(x)
         out = self.bn1(out)
         out = F.relu(out)
