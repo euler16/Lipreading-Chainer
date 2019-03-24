@@ -28,7 +28,7 @@ class BasicBlock(chainer.Chain):
         self.stride = stride
 
     def forward(self, x):
-        print(chainer.backends.cuda.get_device_from_array(x.array))
+        # print(chainer.backends.cuda.get_device_from_array(x.array))
         residual = x
 
         out = self.conv1(x)
@@ -116,7 +116,7 @@ class GRU(chainer.Chain):
         # CHAINER gru takes input as a list of chainer variables, i.e. x should be a list and x[i] should be
         # (seq_len,input size)
         x = [r[:] for r in x]
-        print('before gru', chainer.backends.cuda.get_device_from_array(x.array))
+        # print('before gru', chainer.backends.cuda.get_device_from_array(x.array))
         _, out = self.gru(None, x) # if none then chainer automatically does the correct thing
         if self.every_frame:
             out = self.fc(out)  # predictions based on every time step
@@ -168,10 +168,10 @@ class Lipreading(chainer.Chain):
         #self._initialize_weights()
 
     def forward(self, x):
-        print(type(x))
-        print('before frontend3d', chainer.backends.cuda.get_device_from_array(x.array))
+        # print(type(x))
+        # print('before frontend3d', chainer.backends.cuda.get_device_from_array(x.array))
         x = self.frontend3D(x)
-        print(x.shape)
+        # print(x.shape)
         x = F.transpose(x,axes=(0,2,1,3,4))
         # x = x.transpose(1, 2)
         # x = x.contiguous()
