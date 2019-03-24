@@ -148,9 +148,9 @@ class Lipreading(chainer.Chain):
                 F.relu,
                 L.Convolution1D(2*self.inputDim, 2*self.inputDim, ksize=2,stride=2,nobias=True),
                 #nn.MaxPool1d(2, 2),
-                L.Convolution1D(2*self.inputDim, 4*self.inputDim, 5, 2, 0, nobias=True),
+                L.Convolution1D(2*self.inputDim, 4*self.inputDim, ksize=5, stride=2, 0, nobias=True),
                 L.BatchNormalization(4*self.inputDim),
-                L.PReLU()
+                F.relu
             )
         self.backend_conv2 = chainer.Sequential(
                 L.Linear(4*self.inputDim, self.inputDim),
@@ -188,37 +188,6 @@ class Lipreading(chainer.Chain):
             raise Exception('No model is selected')
         return x
 
-    '''def _initialize_weights(self):
-        for m in self.modules():
-            if isinstance(m, nn.Conv3d):
-                n = m.kernel_size[0] * m.kernel_size[1] * m.kernel_size[2] * m.out_channels
-                m.weight.data.normal_(0, math.sqrt(2. / n))
-                if m.bias is not None:
-                    m.bias.data.zero_()
-
-            elif isinstance(m, nn.Conv2d):
-                n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-                m.weight.data.normal_(0, math.sqrt(2. / n))
-                if m.bias is not None:
-                    m.bias.data.zero_()
-
-            elif isinstance(m, nn.Conv1d):
-                n = m.kernel_size[0] * m.out_channels
-                m.weight.data.normal_(0, math.sqrt(2. / n))
-                if m.bias is not None:
-                    m.bias.data.zero_()
-
-            elif isinstance(m, nn.BatchNorm3d):
-                m.weight.data.fill_(1)
-                m.bias.data.zero_()
-
-            elif isinstance(m, nn.BatchNorm2d):
-                m.weight.data.fill_(1)
-                m.bias.data.zero_()
-
-            elif isinstance(m, nn.BatchNorm1d):
-                m.weight.data.fill_(1)
-                m.bias.data.zero_()'''
 
 
 def lipreading(mode, inputDim=256, hiddenDim=512, nClasses=500, frameLen=29, every_frame=True):
