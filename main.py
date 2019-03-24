@@ -69,11 +69,11 @@ def train_test(model, dset_loaders, epoch, phase, optimizer, args, logger, use_g
     for batch_idx, sample in enumerate(dset_loaders[phase]):
         inputs, targets = concat_examples(sample)
         if phase == 'train':
-            batch_img = RandomCrop(inputs.numpy(), (88, 88))
+            batch_img = RandomCrop(inputs, (88, 88))
             batch_img = ColorNormalize(batch_img)
             batch_img = HorizontalFlip(batch_img)
         elif phase == 'val' or phase == 'test':
-            batch_img = CenterCrop(inputs.numpy(), (88, 88))
+            batch_img = CenterCrop(inputs, (88, 88))
             batch_img = ColorNormalize(batch_img)
         else:
             raise Exception('the dataset doesn\'t exist')
