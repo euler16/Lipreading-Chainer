@@ -9,8 +9,7 @@ import chainer.links as L
 from chainer import Function, training, utils, Variable, Link, Chain, initializers
 
 def conv3x3(in_planes, out_planes, stride=1):
-    return L.Convolution2D(in_planes, out_planes, ksize=3, stride=stride,
-                     pad=1, nobias=True, initialW=initializers.LeCunNormal, )
+    return L.Convolution2D(in_planes, out_planes, ksize=3, stride=stride,pad=1,nobias=True,initialW=initializers.LeCunNormal)
 
 
 class BasicBlock(chainer.Chain):
@@ -19,9 +18,11 @@ class BasicBlock(chainer.Chain):
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(BasicBlock, self).__init__()
         self.conv1 = conv3x3(inplanes, planes, stride)
+        self.conv1 = L.Convolution2D(in_planes, out_planes, ksize=3, stride=stride,pad=1,nobias=True,initialW=initializers.LeCunNormal)
         self.bn1 = L.BatchNormalization(planes)
         #self.relu = nn.ReLU(inplace=True)
-        self.conv2 = conv3x3(planes, planes)
+        # self.conv2 = conv3x3(planes, planes)
+        self.conv2 = L.Convolution2D(planes, planes, ksize=3, stride=1,pad=1,nobias=True,initialW=initializers.LeCunNormal)
         self.bn2 = L.BatchNormalization(planes)
         self.downsample = downsample
         self.stride = stride
