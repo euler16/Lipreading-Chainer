@@ -25,7 +25,7 @@ from cvtransforms import *
 SEED = 1
 np.random.seed(SEED)
 
-GPU = 1
+GPU = 0
 device = cuda.get_device(GPU)
 device.use()
 
