@@ -155,7 +155,7 @@ def test_adam(args, use_gpu):
     model = lipreading(mode=args.mode, inputDim=256, hiddenDim=512, nClasses=args.nClasses, frameLen=29, every_frame=args.every_frame)
     # reload model
     model = reload_model(model, logger, args.path)
-    model.to_device(device)
+    # model.to_device(device)
     
     if args.mode == 'temporalConv' or args.mode == 'finetuneGRU':
         # optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.)
