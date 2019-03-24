@@ -65,7 +65,7 @@ def train_test(model, dset_loaders, epoch, phase, optimizer, args, logger, use_g
 
     running_loss, running_all, accuracy = 0., 0., 0.
     for (inputs, targets) in enumerate(dset_loaders[phase]):
-        print(inputs)
+        print(inputs, targets)
         exit()
     for batch_idx, (inputs, targets) in enumerate(dset_loaders[phase]):
         if phase == 'train':
