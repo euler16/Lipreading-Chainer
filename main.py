@@ -79,7 +79,8 @@ def train_test(model, dset_loaders, epoch, phase, optimizer, args, logger, use_g
             raise Exception('the dataset doesn\'t exist')
 
         batch_img = np.reshape(batch_img, (batch_img.shape[0], batch_img.shape[1], batch_img.shape[2], batch_img.shape[3], 1))
-        inputs = Variable(batch_img, requires_grad=False).to_gpu()
+        inputs = Variable(batch_img, requires_grad=False)
+        inputs.to_gpu()
         #inputs = inputs.float().permute(0, 4, 1, 2, 3)
         print(type(inputs))
         inputs = F.transpose(inputs, axes=(0,4,1,2,3))
