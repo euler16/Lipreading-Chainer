@@ -30,7 +30,7 @@ device.use()
 
 def data_loader(args):
     dsets = {x: MyDataset(x, args.dataset) for x in ['train', 'val', 'test']}
-    dset_loaders = {x: chainer.iterator.MultithreadIterator(dsets[x], batch_size=args.batch_size, repeat=False, shuffle=True, n_threads=args.workers) for x in ['train', 'val', 'test']}
+    dset_loaders = {x: chainer.iterators.MultithreadIterator(dsets[x], batch_size=args.batch_size, repeat=False, shuffle=True, n_threads=args.workers) for x in ['train', 'val', 'test']}
     dset_sizes = {x: len(dsets[x]) for x in ['train', 'val', 'test']}
     print('\nStatistics: train: {}, val: {}, test: {}'.format(dset_sizes['train'], dset_sizes['val'], dset_sizes['test']))
     return dset_loaders, dset_sizes
