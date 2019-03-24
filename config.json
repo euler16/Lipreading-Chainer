@@ -1,0 +1,14 @@
+{
+    "nClasses": 500,
+    "path": "",
+    "dataset": "/home/rajivratn/lipread_npy/",
+    "mode": "temporalConv",
+    "lr": 0.0003,
+    "batch_size": 16,
+    "workers": 4,
+    "epochs": 50,
+    "interval": 5,
+    "test": 0,
+    "every-frame":0,
+    "description":"LipReading"
+}
