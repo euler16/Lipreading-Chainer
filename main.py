@@ -12,7 +12,7 @@ import chainer.functions as F
 
 from chainer import serializers
 from chainer.backends import cuda
-from chainer import Function, training, utils, Variable, Link, Chain, initializers
+from chainer import Function, training, utils, Variable, Link, Chain, initializers, optimizers
 
 from utils import *
 from model import *

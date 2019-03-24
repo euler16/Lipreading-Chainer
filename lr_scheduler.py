@@ -3,8 +3,7 @@ import math
 import numpy as np
 
 
-from torch.optim.optimizer import Optimizer
-
+from chainer import optimizers
 
 class AdjustLR(object):
     def __init__(self, optimizer, init_lr, sleep_epochs=5, half=5, verbose=0):
