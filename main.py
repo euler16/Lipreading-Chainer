@@ -11,6 +11,7 @@ import chainer.links as L
 import chainer.functions as F
 
 from chainer import serializers
+from chainer.dataset import concat_examples
 from chainer.backends import cuda
 from chainer import Function, training, utils, Variable, Link, Chain, initializers, optimizers
 
@@ -64,10 +65,9 @@ def train_test(model, dset_loaders, epoch, phase, optimizer, args, logger, use_g
         # logger.info('Current Learning rate: {}'.format(showLR(optimizer)))
 
     running_loss, running_all, accuracy = 0., 0., 0.
-    for (inputs, targets) in enumerate(dset_loaders[phase]):
-        print(inputs, targets)
-        exit()
-    for batch_idx, (inputs, targets) in enumerate(dset_loaders[phase]):
+    
+    for batch_idx, sample in enumerate(dset_loaders[phase]):
+        inputs, targets = concat_examples(sample)
         if phase == 'train':
             batch_img = RandomCrop(inputs.numpy(), (88, 88))
             batch_img = ColorNormalize(batch_img)
