@@ -25,7 +25,7 @@ SEED = 1
 np.random.seed(SEED)
 
 GPU = 1
-device = chainer.get_device(GPU)
+device = cuda.get_device(GPU)
 device.use()
 
 def data_loader(args):
