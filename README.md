@@ -1,4 +1,5 @@
 # Lipreading [Chainer](chainer_idon_red.png)
+<center>[](chainer_idon_red.png)</center>
 This is the chainer code for the paper *Combining Residual Networks with LSTMs for Lipeading*. You can find the paper [here](https://arxiv.org/pdf/1703.04105.pdf).<br>
 The authors present a word level lipreading model based on Resnets. The input to the model is a silent video and the model then outputs the word it thinks was spoken. In the paper this task of visual speech recognition has been modelled as video classification.
 
