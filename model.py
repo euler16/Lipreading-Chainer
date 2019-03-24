@@ -13,7 +13,7 @@ def conv3x3(in_planes, out_planes, stride=1):
                      pad=1, nobias=True, initialW=initializers.LeCunNormal, )
 
 
-class BasicBlock(chainer.Link):
+class BasicBlock(chainer.Chain):
     expansion = 1
 
     def __init__(self, inplanes, planes, stride=1, downsample=None):
@@ -42,7 +42,7 @@ class BasicBlock(chainer.Link):
         return out
 
 
-class ResNet(chainer.Link):
+class ResNet(chainer.Chain):
 
     def __init__(self, block, layers, num_classes=1000):
         self.inplanes = 64
@@ -54,16 +54,6 @@ class ResNet(chainer.Link):
         #self.avgpool = nn.AvgPool2d(2)
         self.fc = L.Linear(512 * block.expansion, num_classes)
         self.bnfc = L.BatchNormalization(num_classes)
-        '''for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-                m.weight.data.normal_(0, math.sqrt(2. / n))
-            elif isinstance(m, nn.BatchNorm2d):
-                m.weight.data.fill_(1)
-                m.bias.data.zero_()
-            elif isinstance(m, nn.BatchNorm1d):
-                m.weight.data.fill_(1)
-                m.bias.data.zero_()'''
         
 
     def _make_layer(self, block, planes, blocks, stride=1):
@@ -96,7 +86,7 @@ class ResNet(chainer.Link):
         return x
 
 
-class GRU(chainer.Link):
+class GRU(chainer.Chain):
     def __init__(self, input_size, hidden_size, num_layers, num_classes, every_frame=True):
         #  chainer.links.GRU(in_size, out_size, init=None, inner_init=None, bias_init=0)
         super(GRU, self).__init__()
@@ -122,15 +112,17 @@ class GRU(chainer.Link):
         #h0 = chainer.Variable(np.zeros(self.num_layers*2, x.size(0), self.hidden_size)) 
         # CHAINER gru takes input as a list of chainer variables, i.e. x should be a list and x[i] should be
         # (seq_len,input size)
+        x = [r[:] for r in x]
         _, out = self.gru(None, x) # if none then chainer automatically does the correct thing
         if self.every_frame:
             out = self.fc(out)  # predictions based on every time step
         else:
             out = self.fc(out[:, -1, :])  # predictions based on last time-step
+        out = F.stack(out)
         return out
 
 
-class Lipreading(nn.Module):
+class Lipreading(chainer.Chain):
     def __init__(self, mode, inputDim=256, hiddenDim=512, nClasses=500, frameLen=29, every_frame=True):
         super(Lipreading, self).__init__()
         self.mode = mode

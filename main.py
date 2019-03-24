@@ -6,16 +6,12 @@ import logging
 import argparse
 import numpy as np
 
-
-'''import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
-from torchvision import datasets
-from torch.autograd import Variable'''
 import chainer
 import chainer.links as L
 import chainer.functions as F
+
+from chainer import serializers
+from chainer.backends import cuda
 from chainer import Function, training, utils, Variable, Link, Chain, initializers
 
 
@@ -26,18 +22,15 @@ from cvtransforms import *
 
 
 SEED = 1
-torch.manual_seed(SEED)
-torch.cuda.manual_seed(SEED)
 np.random.seed(SEED)
 
-
-if torch.cuda.is_available():
-    torch.set_default_tensor_type('torch.cuda.FloatTensor')
-
+GPU = 1
+device = chainer.get_device(GPU)
+device.use()
 
 def data_loader(args):
     dsets = {x: MyDataset(x, args.dataset) for x in ['train', 'val', 'test']}
-    dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], batch_size=args.batch_size, shuffle=True, num_workers=args.workers) for x in ['train', 'val', 'test']}
+    dset_loaders = {x: chainer.iterator.MultithreadIterator(dsets[x], batch_size=args.batch_size, repeat=False, shuffle=True, n_threads=args.workers) for x in ['train', 'val', 'test']}
     dset_sizes = {x: len(dsets[x]) for x in ['train', 'val', 'test']}
     print('\nStatistics: train: {}, val: {}, test: {}'.format(dset_sizes['train'], dset_sizes['val'], dset_sizes['test']))
     return dset_loaders, dset_sizes
@@ -48,11 +41,7 @@ def reload_model(model, logger, path=""):
         logger.info('train from scratch')
         return model
     else:
-        model_dict = model.state_dict()
-        pretrained_dict = torch.load(path)
-        pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
-        model_dict.update(pretrained_dict)
-        model.load_state_dict(model_dict)
+        serializers.load_npz(path, model)
         logger.info('*** model has been successfully loaded! ***')
         return model
 
@@ -64,17 +53,17 @@ def showLR(optimizer):
     return lr
 
 
-def train_test(model, dset_loaders, criterion, epoch, phase, optimizer, args, logger, use_gpu, save_path):
+def train_test(model, dset_loaders, epoch, phase, optimizer, args, logger, use_gpu, save_path):
     if phase == 'val' or phase == 'test':
-        model.eval()
+        # model.eval()
+        chainer.global_config.train = False
     if phase == 'train':
-        model.train()
-    if phase == 'train':
+        chainer.global_config.train = True
         logger.info('-' * 10)
         logger.info('Epoch {}/{}'.format(epoch, args.epochs - 1))
         logger.info('Current Learning rate: {}'.format(showLR(optimizer)))
 
-    running_loss, running_corrects, running_all = 0., 0., 0.
+    running_loss, running_all, accuracy = 0., 0., 0.
 
     for batch_idx, (inputs, targets) in enumerate(dset_loaders[phase]):
         if phase == 'train':
@@ -88,31 +77,36 @@ def train_test(model, dset_loaders, criterion, epoch, phase, optimizer, args, lo
             raise Exception('the dataset doesn\'t exist')
 
         batch_img = np.reshape(batch_img, (batch_img.shape[0], batch_img.shape[1], batch_img.shape[2], batch_img.shape[3], 1))
-        inputs = torch.from_numpy(batch_img)
-        inputs = inputs.float().permute(0, 4, 1, 2, 3)
-        if use_gpu:
-            if phase == 'train':
-                inputs, targets = Variable(inputs.cuda()), Variable(targets.cuda())
-            if phase == 'val' or phase == 'test':
-                inputs, targets = Variable(inputs.cuda(), volatile=True), Variable(targets.cuda())
-        else:
-            if phase == 'train':
-                inputs, targets = Variable(inputs), Variable(targets)
-            if phase == 'val' or phase == 'test':
-                inputs, targets = Variable(inputs, volatile=True), Variable(targets)
-        outputs = model(inputs)
-        if args.every_frame:
-            outputs = torch.mean(outputs, 1)
-        _, preds = torch.max(F.softmax(outputs, dim=1).data, 1)
-        loss = criterion(outputs, targets)
+        inputs = Variable(batch_img, requires_grad=False).to_gpu()
+        #inputs = inputs.float().permute(0, 4, 1, 2, 3)
+        inputs = F.transpose(inputs, axes=(0,4,1,2,3))
+        targets = Variable(targets).to_gpu()
         if phase == 'train':
-            optimizer.zero_grad()
+            inputs, targets = Variable(inputs), Variable(targets)
+            outputs = model(inputs)
+            if args.every_frame:
+                outputs = F.mean(outputs, 1)
+            # preds = F.argmax(F.softmax(outputs,axis=1), 1)
+            # loss = criterion(outputs, targets)
+            loss = F.softmax_cross_entropy(outputs, targets)
+            model.cleargrads()
             loss.backward()
-            optimizer.step()
+
+            optimizer.update()
+
+        if phase == 'val' or phase == 'test':
+            with chainer.no_backprop_mode():
+                outputs = model(inputs)
+                if args.every_frame:
+                    outputs = F.mean(outputs, 1)
+                preds = F.argmax(F.softmax(outputs,axis=1), 1)
+                loss = F.softmax_cross_entropy(outputs, targets)
+
         # stastics
-        running_loss += loss.data[0] * inputs.size(0)
-        running_corrects += torch.sum(preds == targets.data)
+        running_loss += loss.array[0] * inputs.shape[0]
         running_all += len(inputs)
+        accuracy = F.accuracy(outputs, targets)
+        accuracy.to_cpu()
         if batch_idx == 0:
             since = time.time()
         elif batch_idx % args.interval == 0 or (batch_idx == len(dset_loaders[phase])-1):
@@ -121,17 +115,17 @@ def train_test(model, dset_loaders, criterion, epoch, phase, optimizer, args, lo
                 len(dset_loaders[phase].dataset),
                 100. * batch_idx / (len(dset_loaders[phase])-1),
                 running_loss / running_all,
-                running_corrects / running_all,
+                accuracy,
                 time.time()-since,
-                (time.time()-since)*(len(dset_loaders[phase])-1) / batch_idx - (time.time()-since))),
-    print
-    logger.info('{} Epoch:\t{:2}\tLoss: {:.4f}\tAcc:{:.4f}'.format(
+                (time.time()-since)*(len(dset_loaders[phase])-1) / batch_idx - (time.time()-since)))
+    print(logger.info('{} Epoch:\t{:2}\tLoss: {:.4f}\tAcc:{:.4f}'.format(
         phase,
         epoch,
         running_loss / len(dset_loaders[phase].dataset),
-        running_corrects / len(dset_loaders[phase].dataset))+'\n')
+        accuracy)+'\n'))
     if phase == 'train':
-        torch.save(model.state_dict(), save_path+'/'+args.mode+'_'+str(epoch+1)+'.pt')
+        #torch.save(model.state_dict(), save_path+'/'+args.mode+'_'+str(epoch+1)+'.pt')
+        serializers.save_npz(os.path.join(save_path,args.mode+'_'+str(epoch)+'.pt'), model)
         return model
 
 
@@ -161,31 +155,32 @@ def test_adam(args, use_gpu):
     model = lipreading(mode=args.mode, inputDim=256, hiddenDim=512, nClasses=args.nClasses, frameLen=29, every_frame=args.every_frame)
     # reload model
     model = reload_model(model, logger, args.path)
-    # define loss function and optimizer
-    criterion = nn.CrossEntropyLoss()
+    model.to_device(device)
+    
     if args.mode == 'temporalConv' or args.mode == 'finetuneGRU':
-        optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.)
+        # optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.)
+        optimizer = optimizers.Adam(alpha=args.lr)
+        optimizer.setup(model)
     elif args.mode == 'backendGRU':
-        for param in model.parameters():
+        for param in model.params():
             param.requires_grad = False
-        for param in model.gru.parameters():
+        for param in model.gru.params():
             param.requires_grad = True
-        optimizer = optim.Adam([
-            {'params': model.gru.parameters(), 'lr': args.lr}
-            ], lr=0., weight_decay=0.)
+        optimizer = optimizers.Adam(alpha=args.lr)
+        optimizer.setup(model)
     else:
         raise Exception('No model is found!')
 
     dset_loaders, dset_sizes = data_loader(args)
     scheduler = AdjustLR(optimizer, [args.lr], sleep_epochs=5, half=5, verbose=1)
     if args.test:
-        train_test(model, dset_loaders, criterion, 0, 'val', optimizer, args, logger, use_gpu, save_path)
-        train_test(model, dset_loaders, criterion, 0, 'test', optimizer, args, logger, use_gpu, save_path)
+        train_test(model, dset_loaders, 0, 'val', optimizer, args, logger, use_gpu, save_path)
+        train_test(model, dset_loaders, 0, 'test', optimizer, args, logger, use_gpu, save_path)
         return
     for epoch in xrange(args.epochs):
         scheduler.step(epoch)
-        model = train_test(model, dset_loaders, criterion, epoch, 'train', optimizer, args, logger, use_gpu, save_path)
-        train_test(model, dset_loaders, criterion, epoch, 'val', optimizer, args, logger, use_gpu, save_path)
+        model = train_test(model, dset_loaders, epoch, 'train', optimizer, args, logger, use_gpu, save_path)
+        train_test(model, dset_loaders, epoch, 'val', optimizer, args, logger, use_gpu, save_path)
 
 
 def main():
