@@ -85,6 +85,8 @@ def train_test(model, dset_loaders, epoch, phase, optimizer, args, logger, use_g
         inputs = F.transpose(inputs, axes=(0,4,1,2,3))
         targets = Variable(targets)
         targets.to_gpu()
+        print('inputs', chainer.backends.cuda.get_device_from_array(inputs.array))
+        print('target', chainer.backends.cuda.get_device_from_array(targets.array))
         if phase == 'train':
             outputs = model(inputs)
             if args.every_frame:
