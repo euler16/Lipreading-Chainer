@@ -61,7 +61,7 @@ def train_test(model, dset_loaders, epoch, phase, optimizer, args, logger, use_g
         chainer.global_config.train = True
         logger.info('-' * 10)
         logger.info('Epoch {}/{}'.format(epoch, args.epochs - 1))
-        logger.info('Current Learning rate: {}'.format(showLR(optimizer)))
+        # logger.info('Current Learning rate: {}'.format(showLR(optimizer)))
 
     running_loss, running_all, accuracy = 0., 0., 0.
 
