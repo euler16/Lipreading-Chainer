@@ -146,7 +146,7 @@ class Lipreading(chainer.Chain):
                 L.Convolution1D(self.inputDim, 2*self.inputDim, 5, 2, 0, nobias=True),
                 L.BatchNormalization(2*self.inputDim),
                 F.relu,
-                L.Convolution1D(ksize=2,stride=2,nobias=True),
+                L.Convolution1D(2*self.inputDim, 2*self.inputDim, ksize=2,stride=2,nobias=True),
                 #nn.MaxPool1d(2, 2),
                 L.Convolution1D(2*self.inputDim, 4*self.inputDim, 5, 2, 0, nobias=True),
                 L.BatchNormalization(4*self.inputDim),
