@@ -40,7 +40,7 @@ class BasicBlock(chainer.Chain):
             residual = self.downsample(x)
 
         out += residual
-        out = self.relu(out)
+        out = F.relu(out)
 
         return out
 
