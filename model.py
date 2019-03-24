@@ -59,7 +59,7 @@ class ResNet(chainer.Chain):
     def _make_layer(self, block, planes, blocks, stride=1):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
-            downsample = L.Sequential(
+            downsample = chainer.Sequential(
                 L.Convolution2D(self.inplanes, planes * block.expansion,
                           ksize=1, stride=stride, nobias=True, initialW=initializers.LeCunNormal),
                 L.BatchNormalization(planes * block.expansion),
@@ -71,7 +71,7 @@ class ResNet(chainer.Chain):
         for i in range(1, blocks):
             layers.append(block(self.inplanes, planes))
 
-        return L.Sequential(*layers)
+        return chainer.Sequential(*layers)
 
     def forward(self, x):
         x = self.layer1(x)
