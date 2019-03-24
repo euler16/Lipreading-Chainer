@@ -24,7 +24,7 @@ from cvtransforms import *
 
 SEED = 1
 np.random.seed(SEED)
-
+chainer.global_config.dtype = np.float32
 # GPU = 1
 # device = cuda.get_device(GPU)
 # device.use()
