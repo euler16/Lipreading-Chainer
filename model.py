@@ -171,6 +171,7 @@ class Lipreading(chainer.Chain):
         print(type(x))
         print('before frontend3d', chainer.backends.cuda.get_device_from_array(x.array))
         x = self.frontend3D(x)
+        print(x.shape)
         x = F.transpose(x,axes=(0,2,1))
         # x = x.transpose(1, 2)
         # x = x.contiguous()
