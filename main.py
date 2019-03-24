@@ -82,11 +82,10 @@ def train_test(model, dset_loaders, epoch, phase, optimizer, args, logger, use_g
         inputs = Variable(batch_img, requires_grad=False)
         inputs.to_gpu()
         #inputs = inputs.float().permute(0, 4, 1, 2, 3)
-        print(type(inputs))
         inputs = F.transpose(inputs, axes=(0,4,1,2,3))
-        targets = Variable(targets).to_gpu()
+        targets = Variable(targets)
+        targets.to_gpu()
         if phase == 'train':
-            inputs, targets = Variable(inputs), Variable(targets)
             outputs = model(inputs)
             if args.every_frame:
                 outputs = F.mean(outputs, 1)
