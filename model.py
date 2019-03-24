@@ -164,6 +164,7 @@ class Lipreading(chainer.Chain):
         #self._initialize_weights()
 
     def forward(self, x):
+        print(type(x))
         x = self.frontend3D(x)
         x = F.transpose(x,axes=(0,2,1))
         # x = x.transpose(1, 2)
