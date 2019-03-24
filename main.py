@@ -64,7 +64,8 @@ def train_test(model, dset_loaders, epoch, phase, optimizer, args, logger, use_g
         # logger.info('Current Learning rate: {}'.format(showLR(optimizer)))
 
     running_loss, running_all, accuracy = 0., 0., 0.
-
+    for (inputs, targets) in enumerate(dset_loaders[phase]):
+        exit()
     for batch_idx, (inputs, targets) in enumerate(dset_loaders[phase]):
         if phase == 'train':
             batch_img = RandomCrop(inputs.numpy(), (88, 88))
