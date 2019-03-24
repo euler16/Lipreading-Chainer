@@ -2,6 +2,7 @@
 import random
 import cv2
 import numpy as np
+# import cupy as cp
 
 
 def CenterCrop(batch_img, size):

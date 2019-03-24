@@ -25,9 +25,9 @@ from cvtransforms import *
 SEED = 1
 np.random.seed(SEED)
 
-GPU = 1
-device = cuda.get_device(GPU)
-device.use()
+# GPU = 1
+# device = cuda.get_device(GPU)
+# device.use()
 
 def data_loader(args):
     dsets = {x: MyDataset(x, args.dataset) for x in ['train', 'val', 'test']}
@@ -65,29 +65,29 @@ def train_test(model, dset_loaders, epoch, phase, optimizer, args, logger, use_g
         # logger.info('Current Learning rate: {}'.format(showLR(optimizer)))
 
     running_loss, running_all, accuracy = 0., 0., 0.
-    model.to_gpu(device)
+    #model.to_gpu(device)
     # print('checking the model', chainer.backends.cuda.get_device_from_array(model.array))
     for batch_idx, sample in enumerate(dset_loaders[phase]):
-        inputs, targets = concat_examples(sample, GPU)
+        inputs, targets = concat_examples(sample)
         if phase == 'train':
-            batch_img = RandomCrop(inputs.array, (88, 88))
+            batch_img = RandomCrop(inputs, (88, 88))
             batch_img = ColorNormalize(batch_img)
             batch_img = HorizontalFlip(batch_img)
         elif phase == 'val' or phase == 'test':
-            batch_img = CenterCrop(inputs.array, (88, 88))
+            batch_img = CenterCrop(inputs, (88, 88))
             batch_img = ColorNormalize(batch_img)
         else:
             raise Exception('the dataset doesn\'t exist')
 
         batch_img = np.reshape(batch_img, (batch_img.shape[0], batch_img.shape[1], batch_img.shape[2], batch_img.shape[3], 1))
         inputs = Variable(batch_img, requires_grad=False)
-        inputs.to_gpu(device)
+        #inputs.to_gpu(device)
         #inputs = inputs.float().permute(0, 4, 1, 2, 3)
         inputs = F.transpose(inputs, axes=(0,4,1,2,3))
         targets = Variable(targets)
-        targets.to_gpu(device)
-        print('inputs', chainer.backends.cuda.get_device_from_array(inputs.array))
-        print('target', chainer.backends.cuda.get_device_from_array(targets.array))
+        #targets.to_gpu(device)
+        #print('inputs', chainer.backends.cuda.get_device_from_array(inputs.array))
+        #print('target', chainer.backends.cuda.get_device_from_array(targets.array))
         if phase == 'train':
             outputs = model(inputs)
             if args.every_frame:
@@ -160,9 +160,9 @@ def test_adam(args, use_gpu):
 
     model = lipreading(mode=args.mode, inputDim=256, hiddenDim=512, nClasses=args.nClasses, frameLen=29, every_frame=args.every_frame)
     # reload model
-    model.to_gpu()
+    #model.to_gpu()
     model = reload_model(model, logger, args.path)
-    model.to_gpu(device)
+    #model.to_gpu(device)
     
     if args.mode == 'temporalConv' or args.mode == 'finetuneGRU':
         # optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.)
