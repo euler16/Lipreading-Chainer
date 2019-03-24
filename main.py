@@ -177,7 +177,7 @@ def test_adam(args, use_gpu):
         train_test(model, dset_loaders, 0, 'val', optimizer, args, logger, use_gpu, save_path)
         train_test(model, dset_loaders, 0, 'test', optimizer, args, logger, use_gpu, save_path)
         return
-    for epoch in xrange(args.epochs):
+    for epoch in range(args.epochs):
         scheduler.step(epoch)
         model = train_test(model, dset_loaders, epoch, 'train', optimizer, args, logger, use_gpu, save_path)
         train_test(model, dset_loaders, epoch, 'val', optimizer, args, logger, use_gpu, save_path)
