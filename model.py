@@ -9,7 +9,7 @@ import chainer.links as L
 from chainer import Function, training, utils, Variable, Link, Chain, initializers
 
 def conv3x3(in_planes, out_planes, stride=1):
-    return L.Convolution2d(in_planes, out_planes, ksize=3, stride=stride,
+    return L.Convolution2D(in_planes, out_planes, ksize=3, stride=stride,
                      pad=1, nobias=True, initialW=initializers.LeCunNormal, )
 
 
@@ -60,7 +60,7 @@ class ResNet(chainer.Chain):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = L.Sequential(
-                L.Convolution2d(self.inplanes, planes * block.expansion,
+                L.Convolution2D(self.inplanes, planes * block.expansion,
                           ksize=1, stride=stride, nobias=True, initialW=initializers.LeCunNormal),
                 L.BatchNormalization(planes * block.expansion),
             )
