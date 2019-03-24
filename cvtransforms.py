@@ -8,7 +8,7 @@ def CenterCrop(batch_img, size):
     w, h = batch_img[0][0].shape[1], batch_img[0][0].shape[0]
     th, tw = size
     img = np.zeros((len(batch_img), len(batch_img[0]), th, tw))
-    for i in xrange(len(batch_img)):
+    for i in range(len(batch_img)):
         x1 = int(round((w - tw))/2.)
         y1 = int(round((h - th))/2.)
         img[i] = batch_img[i, :, y1:y1+th, x1:x1+tw]
@@ -19,7 +19,7 @@ def RandomCrop(batch_img, size):
     w, h = batch_img[0][0].shape[1], batch_img[0][0].shape[0]
     th, tw = size
     img = np.zeros((len(batch_img), len(batch_img[0]), th, tw))
-    for i in xrange(len(batch_img)):
+    for i in range(len(batch_img)):
         x1 = random.randint(0, 8)
         y1 = random.randint(0, 8)
         img[i] = batch_img[i, :, y1:y1+th, x1:x1+tw]
@@ -27,9 +27,9 @@ def RandomCrop(batch_img, size):
 
 
 def HorizontalFlip(batch_img):
-    for i in xrange(len(batch_img)):
+    for i in range(len(batch_img)):
         if random.random() > 0.5:
-            for j in xrange(len(batch_img[i])):
+            for j in range(len(batch_img[i])):
                 batch_img[i][j] = cv2.flip(batch_img[i][j], 1)
     return batch_img
 
