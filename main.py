@@ -66,7 +66,7 @@ def train_test(model, dset_loaders, epoch, phase, optimizer, args, logger, use_g
 
     running_loss, running_all, accuracy = 0., 0., 0.
     model.to_gpu()
-    print('checking the model', chainer.backends.cuda.get_device_from_array(model.array))
+    # print('checking the model', chainer.backends.cuda.get_device_from_array(model.array))
     for batch_idx, sample in enumerate(dset_loaders[phase]):
         inputs, targets = concat_examples(sample)
         if phase == 'train':
